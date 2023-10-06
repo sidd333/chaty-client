@@ -40,20 +40,6 @@ const Navbar = (props) => {
                     <div className="hidden sm:ml-6 sm:block">
                       <div className="flex justify-start">
                         <Link
-                          to="/about"
-                          className={`rounded-md px-3 py-2 text-sm font-medium text-white active:text-red-800`}
-                        >
-                          {" "}
-                          about{" "}
-                        </Link>
-                        <Link
-                          to="/"
-                          className={`rounded-md px-3 py-2 text-sm font-medium text-white`}
-                        >
-                          {" "}
-                          home{" "}
-                        </Link>
-                        <Link
                           className="rounded-md px-3 py-2 text-sm font-medium text-white "
                           to="/login"
                         >
