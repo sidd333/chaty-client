@@ -8,6 +8,7 @@ import {
 } from "@material-tailwind/react";
 import { ChatState } from "../../context/ChatProvider";
 import UserListItem from "./UserListItem";
+import { PlusCircleIcon } from "@heroicons/react/24/outline";
 
 const SideDrawer = () => {
   const { setSelectedChat, chats, setChats } = ChatState();
@@ -32,7 +33,7 @@ const SideDrawer = () => {
       setLoading(true);
 
       const response = await fetch(
-        `https://chy-5cjs.onrender.com/api/auth?search=${search}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/auth?search=${search}`,
         {
           method: "GET",
           headers: {
@@ -52,7 +53,7 @@ const SideDrawer = () => {
   const accessChat = async (userId) => {
     try {
       setLoading(true);
-      const response = await fetch(`https://chy-5cjs.onrender.com/api/chat`, {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +75,7 @@ const SideDrawer = () => {
   };
   return (
     <React.Fragment>
-      <Button onClick={openDrawer}>Open Drawer</Button>
+      <IconButton variant="gradient" onClick={openDrawer}><PlusCircleIcon className="h-6 w-8" /></IconButton>
       <Drawer open={open} onClose={closeDrawer} className="p-4">
         <div className="mb-6 flex items-center justify-between">
           <Typography variant="h5" color="blue-gray">

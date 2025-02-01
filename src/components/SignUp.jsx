@@ -10,7 +10,7 @@ const SignUp = () => {
 
     console.log("function entered");
     const response = await fetch(
-      "https://chy-5cjs.onrender.com/api/auth/signup",
+      `${process.env.REACT_APP_BACKEND_URL}/api/auth/signup`,
       {
         method: "POST",
         headers: {

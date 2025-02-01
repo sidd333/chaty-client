@@ -19,9 +19,9 @@ const Chat = () => {
   return (
     <div className="w-full h-screen overflow-hidden">
       <div className="flex justify-between ">
-        <SideDrawer />
-        <Button onClick={() => setOpen(!open)}>add group chat</Button>{" "}
-        <CreateGroupChat open={open} setOpen={setOpen} />
+        {/* <SideDrawer /> */}
+        {/* <Button onClick={() => setOpen(!open)}>add group chat</Button>{" "} */}
+        {/* <CreateGroupChat open={open} setOpen={setOpen} /> */}
       </div>
 
       <div className="w-full flex">

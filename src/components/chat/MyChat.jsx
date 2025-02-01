@@ -19,7 +19,7 @@ const MyChat = () => {
 
   const fetchChats = async () => {
     try {
-      const response = await fetch("https://chy-5cjs.onrender.com/api/chat", {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -42,15 +42,14 @@ const MyChat = () => {
 
   return (
     <div
-      className={`w-screen sm:w-1/4 h-screen overflow-y-scroll bg-slate-500 ${
-        selectedChat ? "hidden sm:block" : ""
-      }`}
+      className={`w-screen sm:w-1/4 h-screen overflow-y-scroll bg-slate-500 ${selectedChat ? "hidden sm:block" : ""
+        }`}
     >
       {console.log(chats)}
       {console.log(loggedUser)}
-      {chats.length > 0 ? (
+      {chats?.length > 0 ? (
         <List chatName="w-full">
-          {chats.map((chat) => {
+          {chats?.map((chat) => {
             return (
               <ListItem
                 key={chat._id}
@@ -60,23 +59,23 @@ const MyChat = () => {
               >
                 <div>
                   <Typography variant="h4" color="blue-gray">
-                    {chat.isGroupChat
-                      ? chat.chatName
-                      : getSender(loggedUser, chat.users)}
+                    {chat?.isGroupChat
+                      ? chat?.chatName
+                      : getSender(loggedUser, chat?.users)}
                   </Typography>
                   <Typography variant="h6" color="blue-gray" className="">
-                    latest text
+                    {chat?.latestMessage?.content || "Say hi to your friend"}
                   </Typography>
                 </div>
 
-                <ListItemSuffix>
+                {/* <ListItemSuffix>
                   <Chip
                     value="14"
                     variant="ghost"
                     size="sm"
                     className="rounded-full"
                   />
-                </ListItemSuffix>
+                </ListItemSuffix> */}
               </ListItem>
             );
           })}

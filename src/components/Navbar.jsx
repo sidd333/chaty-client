@@ -1,96 +1,146 @@
-import { Disclosure } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import React from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
-import { ChatState } from "../context/ChatProvider";
+import { useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useAuth } from "../context/AuthContext"
+import { ChatState } from "../context/ChatProvider"
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Button,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  useMediaQuery,
+  Fade,
+} from "@mui/material"
+import { styled, useTheme } from "@mui/material/styles"
+import { XMarkIcon, ChatBubbleLeftRightIcon, Bars3Icon as MenuIcon, UserGroupIcon } from "@heroicons/react/24/outline"
+import SideDrawer from "./chat/SideDrawer"
+import CreateGroupChat from "./chat/CreateGroupChat"
 
-const Navbar = (props) => {
-  const navigate = useNavigate();
-  const { fetchAgain, setFetchAgain } = ChatState();
-  const location = useLocation();
+const StyledAppBar = styled(AppBar)({
+  background: "#161A30",
+  boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+})
 
-  const logout = () => {
-    localStorage.removeItem("token");
-  };
+const StyledToolbar = styled(Toolbar)({
+  display: "flex",
+  justifyContent: "space-between",
+})
+
+const NavButton = styled(Button)({
+  color: "#F0ECE5",
+  margin: "8px",
+  "&:hover": {
+    backgroundColor: "#31304D",
+  },
+  transition: "background-color 0.3s",
+})
+
+const Navbar = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [sideDrawerOpen, setSideDrawerOpen] = useState(false)
+  const [groupChatOpen, setGroupChatOpen] = useState(false)
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { logout } = useAuth()
+  const { setFetchAgain } = ChatState()
+  const theme = useTheme()
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
+
+  const handleLogout = () => {
+    logout()
+    navigate("/login")
+  }
+
+  const handleChatNavigation = () => {
+    setFetchAgain(true)
+    navigate("/chat")
+  }
+
+  const navItems = [
+    // { text: "Chat", onClick: handleChatNavigation, icon: <ChatBubbleLeftRightIcon className="h-5 w-5" /> },
+    { text: "Logout", onClick: handleLogout },
+  ]
+
+  if (location.pathname === "/chat") {
+    return null
+  }
+
+  const drawer = (
+    <Drawer
+      anchor="right"
+      open={drawerOpen}
+      onClose={() => setDrawerOpen(false)}
+      PaperProps={{
+        sx: {
+          width: 240,
+          background: "linear-gradient(to right, #f5f5f5, #e0e0e0)",
+          color: theme.palette.text.primary,
+        },
+      }}
+    >
+      <div className="p-4">
+        <IconButton edge="end" color="inherit" onClick={() => setDrawerOpen(false)} sx={{ mb: 2 }}>
+          <XMarkIcon className="h-6 w-6" />
+        </IconButton>
+        <List>
+          {navItems.map((item) => (
+            <ListItem
+              button
+              key={item.text}
+              onClick={() => {
+                item.onClick()
+                setDrawerOpen(false)
+              }}
+              className="hover:bg-black hover:bg-opacity-5 transition-colors duration-300"
+            >
+              {item.icon && <span className="mr-2">{item.icon}</span>}
+              <ListItemText primary={item.text} />
+            </ListItem>
+          ))}
+        </List>
+      </div>
+    </Drawer>
+  )
+
   return (
-    <>
-      {location.pathname !== "/chat" && (
-        <Disclosure as="nav" className="bg-gray-900">
-          {({ open }) => (
+    <Fade in={true} timeout={1000}>
+      <StyledAppBar position="static" elevation={0}>
+        <StyledToolbar>
+          <Typography variant="h6" component="div" className="font-bold text-accent">
+            Chatly
+          </Typography>
+          {isMobile ? (
             <>
-              <div className="mx-auto  px-2 sm:px-6 lg:px-8">
-                <div className="relative flex h-16 items-center justify-between">
-                  <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                    {/* Mobile menu button*/}
-                    <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
-                      {open ? (
-                        <XMarkIcon
-                          className="block h-6 w-6"
-                          aria-hidden="true"
-                        />
-                      ) : (
-                        <Bars3Icon
-                          className="block h-6 w-6"
-                          aria-hidden="true"
-                        />
-                      )}
-                    </Disclosure.Button>
-                  </div>
-                  <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                    <div className="hidden sm:ml-6 sm:block">
-                      <div className="flex justify-start">
-                        <Link
-                          className="rounded-md px-3 py-2 text-sm font-medium text-white "
-                          to="/login"
-                        >
-                          <button className="">Login</button>
-                        </Link>
-                        <Link
-                          className="rounded-md px-3 py-2 text-sm font-medium text-white "
-                          to="/signup"
-                        >
-                          <button className="">SignUp</button>
-                        </Link>
-                        <button
-                          className="rounded-md px-3 py-2 text-sm font-medium text-white "
-                          onClick={() => {
-                            setFetchAgain(true);
-                            return navigate("/chat");
-                          }}
-                        >
-                          chat
-                        </button>
-                        <Link
-                          className="rounded-md px-3 py-2 text-sm font-medium text-white "
-                          onClick={logout}
-                        >
-                          <button>Logout</button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                    <button
-                      type="button"
-                      className="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-                    >
-                      <span className="sr-only">View notifications</span>
-                      <BellIcon className="h-6 w-6" aria-hidden="true" />
-                    </button>
-                  </div>
-                </div>
-                <Disclosure.Panel className="sm:hidden">
-                  <Link className="text-gray-400 h-6 w-6">
-                    <button className="">ooooooo</button>
-                  </Link>
-                </Disclosure.Panel>
-              </div>
+              <IconButton edge="start" color="inherit" aria-label="menu" onClick={() => setDrawerOpen(true)}>
+                <MenuIcon className="h-6 w-6 text-gray-800" />
+              </IconButton>
             </>
-          )}
-        </Disclosure>
-      )}
-    </>
-  );
-};
+          ) : (
+            <div className="flex items-center">
+              <SideDrawer open={sideDrawerOpen} setOpen={setSideDrawerOpen} />
+              {navItems.map((item) => (
+                <NavButton key={item.text} onClick={item.onClick}>
+                  {item.icon && <span className="mr-2 text-gray-600">{item.icon}</span>}
+                  <span className="text-gray-800">{item.text}</span>
+                </NavButton>
+              ))}
 
-export default Navbar;
+              <IconButton color="inherit" className="ml-2" onClick={() => setGroupChatOpen(true)}>
+                <UserGroupIcon className="h-5 w-5 text-gray-600" />
+              </IconButton>
+            </div>
+          )}
+        </StyledToolbar>
+        {drawer}
+        <CreateGroupChat open={groupChatOpen} setOpen={setGroupChatOpen} />
+      </StyledAppBar>
+    </Fade>
+  )
+}
+
+export default Navbar
+

@@ -1,107 +1,171 @@
-import React, { useRef } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import { TextField, Button, Container, Box, Typography, Paper, CssBaseline, Grid, Link } from "@mui/material";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, Controller } from "react-hook-form";
+import { z } from "zod";
+import toast, { Toaster } from "react-hot-toast";
+import { motion } from "framer-motion";
+import { useAuth } from "../context/AuthContext"; // Import useAuth
+
+// Zod schema for validation
+const loginSchema = z.object({
+  email: z.string().email("Invalid email address").min(1, "Email is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
 
 const Login = () => {
-  const email = useRef("");
-  const password = useRef("pass");
-  let navigate = useNavigate();
+  const navigate = useNavigate();
+  const { login } = useAuth(); // Access login function from context
 
-  const submit = async (e) => {
-    e.preventDefault();
+  // React Hook Form setup with Zod resolver
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
-    const response = await fetch(
-      `https://chy-5cjs.onrender.com/api/auth/signin`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: email.current.value,
-          password: password.current.value,
-        }),
-      }
-    );
-    const data = await response.json();
-    if (data.success) {
-      let userInfo = JSON.stringify(data);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("userInfo", userInfo);
-      navigate("/");
-    } else {
-      alert("wrong credentials");
-    }
+  const onSubmit = (data) => {
+    login(data.email, data.password); // Use the login function from context
   };
+
   return (
-    <div>
-      {" "}
-      <form onSubmit={submit}>
-        <div className="space-y-12">
-          <div className="border-b border-gray-900/10 pb-12">
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="Email"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Email
-              </label>
-              <div className="mt-2">
-                <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                  <input
-                    ref={email}
-                    type="text"
-                    name="Email"
-                    id="Email"
-                    autoComplete="Email"
-                    className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                    placeholder="janesmith"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border-b border-gray-900/10 pb-12">
-            <div className="sm:col-span-4">
-              <label
-                htmlFor="Password"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Password
-              </label>
-              <div className="mt-2">
-                <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-600 sm:max-w-md">
-                  <input
-                    ref={password}
-                    type="text"
-                    name="Password"
-                    id="Password"
-                    autoComplete="Password"
-                    className="block flex-1 border-0 bg-transparent py-1.5 pl-1 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                    placeholder="janesmith"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 flex items-center justify-end gap-x-6">
-          <button
-            type="button"
-            className="text-sm font-semibold leading-6 text-gray-900"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <Container component="main" maxWidth="xs">
+        <CssBaseline />
+        <Toaster position="top-center" />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            minHeight: "100vh",
+          }}
+        >
+          <Paper
+            elevation={6}
+            sx={{
+              padding: 4,
+              width: "100%",
+              borderRadius: 2,
+              background: "linear-gradient(145deg, #ffffff, #f0f0f0)",
+              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
+            }}
           >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-          >
-            Save
-          </button>
-        </div>
-      </form>
-    </div>
+            <Typography
+              component="h1"
+              variant="h4"
+              align="center"
+              sx={{
+                fontWeight: "bold",
+                mb: 3,
+                color: "primary.main",
+              }}
+            >
+              Welcome Back
+            </Typography>
+            <Typography
+              variant="body2"
+              align="center"
+              sx={{ mb: 4, color: "text.secondary" }}
+            >
+              Sign in to continue to your account
+            </Typography>
+            <Box
+              component="form"
+              onSubmit={handleSubmit(onSubmit)}
+              sx={{ mt: 2 }}
+            >
+              {/* Email Field */}
+              <Controller
+                name="email"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    margin="normal"
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    autoComplete="email"
+                    error={!!errors.email}
+                    helperText={errors.email ? errors.email.message : ""}
+                    sx={{ mb: 2 }}
+                  />
+                )}
+              />
+
+              {/* Password Field */}
+              <Controller
+                name="password"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    margin="normal"
+                    required
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    autoComplete="current-password"
+                    error={!!errors.password}
+                    helperText={errors.password ? errors.password.message : ""}
+                    sx={{ mb: 3 }}
+                  />
+                )}
+              />
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{
+                  mt: 2,
+                  mb: 2,
+                  py: 1.5,
+                  borderRadius: 1,
+                  fontWeight: "bold",
+                  background: "linear-gradient(45deg, #1976d2, #2196f3)",
+                  "&:hover": {
+                    background: "linear-gradient(45deg, #1565c0, #1e88e5)",
+                  },
+                }}
+              >
+                Sign In
+              </Button>
+
+              {/* Forgot Password Link */}
+              <Grid container justifyContent="flex-end">
+                <Grid item>
+                  <Link
+                    href="/signup"
+                    variant="body2"
+                    sx={{ color: "primary.main", textDecoration: "none" }}
+                  >
+                    Dont have an account? Sign Up
+                  </Link>
+                </Grid>
+              </Grid>
+            </Box>
+          </Paper>
+        </Box>
+      </Container>
+    </motion.div>
   );
 };
 

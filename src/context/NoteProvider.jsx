@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NoteContext } from "./NoteContext";
 
 export const NoteProvider = (props) => {
-  const host = "https://chy-5cjs.onrender.com";
+  const host = process.env.BACKEND_URL;
 
   const [notes, setNotes] = useState([]);
   const [visible, setVisible] = useState(false);

@@ -36,7 +36,7 @@ const CreateGroupChat = ({ open, setOpen }) => {
     } else {
       try {
         const response = await fetch(
-          `https://chy-5cjs.onrender.com/api/auth?search=${search}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/auth?search=${search}`,
           {
             method: "GET",
             headers: {
@@ -62,7 +62,7 @@ const CreateGroupChat = ({ open, setOpen }) => {
     if (!groupChatName || selectedUsers.length < 2) return;
     try {
       const response = await fetch(
-        `https://chy-5cjs.onrender.com/api/chat/group`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/chat/group`,
         {
           method: "POST",
           headers: {

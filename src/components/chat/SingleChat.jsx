@@ -4,7 +4,7 @@ import { Input, Button } from "@material-tailwind/react";
 import ScrollableChat from "./ScrollableChat";
 import io from "socket.io-client";
 
-const ENDPOINT = "https://chy-5cjs.onrender.com";
+const ENDPOINT = `${process.env.REACT_APP_BACKEND_URL}`;
 let socket, selectedChatCompare;
 
 const SingleChat = () => {
@@ -37,7 +37,7 @@ const SingleChat = () => {
 
     try {
       const response = await fetch(
-        `https://chy-5cjs.onrender.com/api/message/${selectedChat._id}`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/message/${selectedChat._id}`,
         {
           method: "GET",
           headers: {
@@ -60,7 +60,7 @@ const SingleChat = () => {
     if ((e.key === "Enter" || e.target.name === "send") && newMessage) {
       try {
         const response = await fetch(
-          `https://chy-5cjs.onrender.com/api/message`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/message`,
           {
             method: "POST",
             headers: {
@@ -79,7 +79,7 @@ const SingleChat = () => {
         setMessages([...messages, data]);
 
         setNewMessage("");
-      } catch (error) {}
+      } catch (error) { }
     }
   };
 

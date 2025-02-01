@@ -6,13 +6,13 @@ module.exports = withMT({
   theme: {
     extend: {
       colors: {
-        "dark-purple": "#081A51",
-        "light-white": "rgba(255,255,255,0.18)",
-        "overlay-color": "rgba(1,1,1,0.4)",
-        grey: "#efeded",
-        blendbg: "rgb(241,241,241);",
-        bgsecondary: "#ECEADA",
-        formbg: "rgb(40,44,47)",
+        "primary": "#161A30",   // Updated color
+        "secondary": "#31304D",   // Updated color
+        "accent": "#B6BBC4", // Updated color
+        grey: "#F0ECE5",            // Updated color
+        blendbg: "#F1F1F1",         // Updated to a neutral light color
+        bgsecondary: "#F0ECE5",     // Updated to match the lighter color scheme
+        formbg: "#282C2F",          // Updated to a darker form background
       },
       scale: {
         side: "",

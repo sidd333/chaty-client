@@ -28,7 +28,7 @@ const UpdateGroupChatModal = ({ open, setOpen, handleOpen }) => {
     if (!groupChatName) return;
     try {
       const response = await fetch(
-        `https://chy-5cjs.onrender.com/api/chat/rename`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/chat/rename`,
         {
           method: "PUT",
           headers: {
@@ -66,7 +66,7 @@ const UpdateGroupChatModal = ({ open, setOpen, handleOpen }) => {
       let UID = user1._id ? user1._id : user1.id;
 
       const response = await fetch(
-        `https://chy-5cjs.onrender.com/api/chat/removeMember`,
+        `${process.env.REACT_APP_BACKEND_URL}/api/chat/removeMember`,
         {
           method: "DELETE",
           headers: {
@@ -84,7 +84,7 @@ const UpdateGroupChatModal = ({ open, setOpen, handleOpen }) => {
 
       UID === loggedInUser.id ? setSelectedChat("") : setSelectedChat(data);
       setFetchAgain(!fetchAgain);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleGroup = async (userToAdd) => {
@@ -96,7 +96,7 @@ const UpdateGroupChatModal = ({ open, setOpen, handleOpen }) => {
       return;
     }
     const response = await fetch(
-      `https://chy-5cjs.onrender.com/api/chat/addMember`,
+      `${process.env.REACT_APP_BACKEND_URL}/api/chat/addMember`,
       {
         method: "PUT",
         headers: {
@@ -124,7 +124,7 @@ const UpdateGroupChatModal = ({ open, setOpen, handleOpen }) => {
     } else {
       try {
         const response = await fetch(
-          `https://chy-5cjs.onrender.com/api/auth?search=${search}`,
+          `${process.env.REACT_APP_BACKEND_URL}/api/auth?search=${search}`,
           {
             method: "GET",
             headers: {

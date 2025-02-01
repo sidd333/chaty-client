@@ -9,17 +9,17 @@ const ChatProvider = (props) => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+  // useEffect(() => {
+  //   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
-    const token = localStorage.getItem("token");
+  //   const token = localStorage.getItem("token");
 
-    setUser(userInfo);
+  //   setUser(userInfo);
 
-    if (!token) {
-      navigate("/");
-    }
-  }, []);
+  //   if (!token) {
+  //     navigate("/");
+  //   }
+  // }, []);
 
   return (
     <ChatContext.Provider
