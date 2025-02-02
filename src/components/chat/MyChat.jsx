@@ -1,21 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { ChatState } from "../../context/ChatProvider";
-import {
-  List,
-  ListItem,
-  ListItemSuffix,
-  Chip,
-  Typography,
-} from "@material-tailwind/react";
-import { getSender } from "../../config/chatLogic";
+import { useEffect, useState } from "react"
+import { ChatState } from "../../context/ChatProvider"
+import { List, ListItem, ListItemAvatar, ListItemText, Typography, Chip } from "@mui/material"
+import { UserGroupIcon } from "@heroicons/react/24/outline"
+import { getSender } from "../../config/chatLogic"
+import { Avatar } from "@mui/material"
 
 const MyChat = () => {
-  const { setSelectedChat, selectedChat, chats, setChats, fetchAgain } =
-    ChatState();
+  const { setSelectedChat, selectedChat, chats, setChats, fetchAgain } = ChatState()
 
-  const [loggedUser, setLoggedUser] = useState(
-    JSON.parse(localStorage.getItem("userInfo"))
-  );
+  const [loggedUser, setLoggedUser] = useState(JSON.parse(localStorage.getItem("userInfo")))
 
   const fetchChats = async () => {
     try {
@@ -25,66 +18,67 @@ const MyChat = () => {
           "Content-Type": "application/json",
           "auth-token": `${localStorage.getItem("token")}`,
         },
-      });
+      })
 
-      const data = await response.json();
-      setChats(data);
+      const data = await response.json()
+      setChats(data)
     } catch (error) {
-      console.log("mmy chat :" + error);
+      console.log("mmy chat :" + error)
     }
-  };
+  }
 
   useEffect(() => {
-    setLoggedUser(JSON.parse(localStorage.getItem("userInfo")));
-    fetchChats();
-    console.log("triggeredd");
-  }, [fetchAgain]);
+    setLoggedUser(JSON.parse(localStorage.getItem("userInfo")))
+    fetchChats()
+    console.log("triggeredd")
+  }, [fetchAgain, localStorage.getItem("userInfo")]) // Added localStorage.getItem("userInfo") to dependencies
 
   return (
-    <div
-      className={`w-screen sm:w-1/4 h-screen overflow-y-scroll bg-slate-500 ${selectedChat ? "hidden sm:block" : ""
-        }`}
-    >
-      {console.log(chats)}
-      {console.log(loggedUser)}
+    <div className={`w-screen sm:w-1/4 h-screen overflow-y-scroll bg-secondary bg-opacity-50 ${selectedChat ? "hidden sm:block" : ""}`}>
       {chats?.length > 0 ? (
-        <List chatName="w-full">
-          {chats?.map((chat) => {
-            return (
-              <ListItem
-                key={chat._id}
-                onClick={() => {
-                  setSelectedChat(chat);
-                }}
-              >
-                <div>
-                  <Typography variant="h4" color="blue-gray">
-                    {chat?.isGroupChat
-                      ? chat?.chatName
-                      : getSender(loggedUser, chat?.users)}
+        <List className="w-full">
+          {chats?.map((chat) => (
+            <ListItem
+              key={chat._id}
+              onClick={() => setSelectedChat(chat)}
+              className="hover:bg-secondary cursor-pointer transition-colors duration-200 hover:text-accent"
+            >
+              <ListItemAvatar>
+                <Avatar className="bg-accent text-accent-foreground">
+                  {chat.isGroupChat ? (
+                    <UserGroupIcon className="h-6 w-6" />
+                  ) : (
+                    getSender(loggedUser, chat.users).charAt(0).toUpperCase()
+                  )}
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText
+                primary={
+                  <Typography variant="subtitle1" className="text-primary-foreground font-semibold">
+                    {chat.isGroupChat ? chat.chatName : getSender(loggedUser, chat.users)}
                   </Typography>
-                  <Typography variant="h6" color="blue-gray" className="">
-                    {chat?.latestMessage?.content || "Say hi to your friend"}
+                }
+                secondary={
+                  <Typography variant="body2" className=" ">
+                    {chat.latestMessage?.content || "Say hi to your friend"}
                   </Typography>
-                </div>
-
-                {/* <ListItemSuffix>
-                  <Chip
-                    value="14"
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-full"
-                  />
-                </ListItemSuffix> */}
-              </ListItem>
-            );
-          })}
+                }
+              />
+              {/* <Chip
+                label="14"
+                variant="outlined"
+                size="small"
+                className="bg-accent text-accent-foreground rounded-full"
+              /> */}
+            </ListItem>
+          ))}
         </List>
       ) : (
         <></>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default MyChat;
+export default MyChat
+

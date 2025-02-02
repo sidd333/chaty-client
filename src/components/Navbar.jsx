@@ -14,9 +14,14 @@ import {
   ListItemText,
   useMediaQuery,
   Fade,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material"
 import { styled, useTheme } from "@mui/material/styles"
-import { XMarkIcon, ChatBubbleLeftRightIcon, Bars3Icon as MenuIcon, UserGroupIcon } from "@heroicons/react/24/outline"
+import { XMarkIcon, Bars3Icon as MenuIcon, UserGroupIcon } from "@heroicons/react/24/outline"
 import SideDrawer from "./chat/SideDrawer"
 import CreateGroupChat from "./chat/CreateGroupChat"
 
@@ -43,16 +48,26 @@ const Navbar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [sideDrawerOpen, setSideDrawerOpen] = useState(false)
   const [groupChatOpen, setGroupChatOpen] = useState(false)
+  const [logoutConfirmOpen, setLogoutConfirmOpen] = useState(false)
   const navigate = useNavigate()
   const location = useLocation()
-  const { logout } = useAuth()
-  const { setFetchAgain } = ChatState()
+  const { logout, isAuthenticated } = useAuth()
+  const { setFetchAgain, typing, setTyping } = ChatState()
   const theme = useTheme()
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
+    setLogoutConfirmOpen(true)
+  }
+
+  const handleLogoutConfirm = () => {
+    setLogoutConfirmOpen(false)
     logout()
     navigate("/login")
+  }
+
+  const handleLogoutCancel = () => {
+    setLogoutConfirmOpen(false)
   }
 
   const handleChatNavigation = () => {
@@ -60,10 +75,7 @@ const Navbar = () => {
     navigate("/chat")
   }
 
-  const navItems = [
-    // { text: "Chat", onClick: handleChatNavigation, icon: <ChatBubbleLeftRightIcon className="h-5 w-5" /> },
-    { text: "Logout", onClick: handleLogout },
-  ]
+  const navItems = [{ text: "Logout", onClick: handleLogoutClick }]
 
   if (location.pathname === "/chat") {
     return null
@@ -97,8 +109,8 @@ const Navbar = () => {
               }}
               className="hover:bg-black hover:bg-opacity-5 transition-colors duration-300"
             >
-              {item.icon && <span className="mr-2">{item.icon}</span>}
-              <ListItemText primary={item.text} />
+              {item.icon && <span className="mr-2 text-accent">{item.icon}</span>}
+              <ListItemText className="text-accent" primary={item.text} />
             </ListItem>
           ))}
         </List>
@@ -107,16 +119,22 @@ const Navbar = () => {
   )
 
   return (
-    <Fade in={true} timeout={1000}>
+    <Fade in={true} timeout={1000} className={`${!isAuthenticated && "!hidden"}`}>
       <StyledAppBar position="static" elevation={0}>
         <StyledToolbar>
           <Typography variant="h6" component="div" className="font-bold text-accent">
             Chatly
           </Typography>
+
+          {typing && (
+            <Typography variant="body2" className="text-gray-400 ">
+              {typing}
+            </Typography>
+          )}
           {isMobile ? (
             <>
               <IconButton edge="start" color="inherit" aria-label="menu" onClick={() => setDrawerOpen(true)}>
-                <MenuIcon className="h-6 w-6 text-gray-800" />
+                <MenuIcon className="h-6 w-6 text-accent" />
               </IconButton>
             </>
           ) : (
@@ -125,7 +143,7 @@ const Navbar = () => {
               {navItems.map((item) => (
                 <NavButton key={item.text} onClick={item.onClick}>
                   {item.icon && <span className="mr-2 text-gray-600">{item.icon}</span>}
-                  <span className="text-gray-800">{item.text}</span>
+                  <span className="text-accent">{item.text}</span>
                 </NavButton>
               ))}
 
@@ -137,6 +155,26 @@ const Navbar = () => {
         </StyledToolbar>
         {drawer}
         <CreateGroupChat open={groupChatOpen} setOpen={setGroupChatOpen} />
+
+        <Dialog
+          open={logoutConfirmOpen}
+          onClose={handleLogoutCancel}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{"Confirm Logout"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">Are you sure you want to log out?</DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleLogoutCancel} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleLogoutConfirm} color="primary" autoFocus>
+              Logout
+            </Button>
+          </DialogActions>
+        </Dialog>
       </StyledAppBar>
     </Fade>
   )

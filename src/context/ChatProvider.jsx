@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { ChatContext } from "./NoteContext";
 import { useNavigate, useLocation } from "react-router-dom";
 
+
 const ChatProvider = (props) => {
   const [user, setUser] = useState();
   const [selectedChat, setSelectedChat] = useState();
@@ -9,6 +10,7 @@ const ChatProvider = (props) => {
   const [fetchAgain, setFetchAgain] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const [typing, setTyping] = useState("");
   // useEffect(() => {
   //   const userInfo = JSON.parse(localStorage.getItem("userInfo"));
 
@@ -21,6 +23,8 @@ const ChatProvider = (props) => {
   //   }
   // }, []);
 
+
+
   return (
     <ChatContext.Provider
       value={{
@@ -32,6 +36,7 @@ const ChatProvider = (props) => {
         setChats,
         fetchAgain,
         setFetchAgain,
+        typing, setTyping
       }}
     >
       {props.children}

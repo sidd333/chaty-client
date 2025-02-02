@@ -1,58 +1,57 @@
-import React, { useState } from "react";
-import {
-  Drawer,
-  Button,
-  Typography,
-  IconButton,
-  Input,
-} from "@material-tailwind/react";
-import { ChatState } from "../../context/ChatProvider";
-import UserListItem from "./UserListItem";
-import { PlusCircleIcon } from "@heroicons/react/24/outline";
+import React, { useState, useCallback } from "react"
+import { Drawer, IconButton, Typography, TextField, List, CircularProgress } from "@mui/material"
+import { ChatState } from "../../context/ChatProvider"
+import UserListItem from "./UserListItem"
+import { PlusCircleIcon, XMarkIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline"
+import debounce from "lodash/debounce"
 
 const SideDrawer = () => {
-  const { setSelectedChat, chats, setChats } = ChatState();
-  const [search, setSearch] = useState("");
-  const [searchResult, setSearchResult] = useState([]);
-  const [loading, setLoading] = useState(false);
-  // const [loadingChat, setLoadingChat] = useState();
+  const { setSelectedChat, chats, setChats } = ChatState()
+  const [search, setSearch] = useState("")
+  const [searchResult, setSearchResult] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [open, setOpen] = useState(false)
 
-  const [open, setOpen] = React.useState(false);
+  const openDrawer = () => setOpen(true)
+  const closeDrawer = () => setOpen(false)
 
-  const openDrawer = () => setOpen(true);
-  const closeDrawer = () => setOpen(false);
-
-  const onChange = ({ target }) => setSearch(target.value);
-
-  const handleSearch = async () => {
-    if (!search) {
-      console.log("empty");
-      return;
+  const handleSearch = async (searchTerm) => {
+    if (!searchTerm) {
+      setSearchResult([])
+      return
     }
     try {
-      setLoading(true);
-
-      const response = await fetch(
-        `${process.env.REACT_APP_BACKEND_URL}/api/auth?search=${search}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "auth-token": `${localStorage.getItem("token")}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setLoading(false);
-      setSearchResult(data);
+      setLoading(true)
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/auth?search=${searchTerm}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "auth-token": `${localStorage.getItem("token")}`,
+        },
+      })
+      const data = await response.json()
+      setLoading(false)
+      setSearchResult(data)
     } catch (error) {
-      console.log(error.stack);
+      console.log(error.stack)
+      setLoading(false)
     }
-  };
+  }
+
+  const debouncedSearch = useCallback(
+    debounce((searchTerm) => handleSearch(searchTerm), 300),
+    [],
+  )
+
+  const onChange = (e) => {
+    const searchTerm = e.target.value
+    setSearch(searchTerm)
+    debouncedSearch(searchTerm)
+  }
 
   const accessChat = async (userId) => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/chat`, {
         method: "POST",
         headers: {
@@ -62,80 +61,63 @@ const SideDrawer = () => {
         body: JSON.stringify({
           userId: `${userId}`,
         }),
-      });
-      const data = await response.json();
+      })
+      const data = await response.json()
 
-      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);
+      if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats])
 
-      setSelectedChat(data);
-      setLoading(false);
+      setSelectedChat(data)
+      setLoading(false)
+      closeDrawer()
     } catch (error) {
-      console.log("error");
+      console.log("error")
+      setLoading(false)
     }
-  };
+  }
+
   return (
     <React.Fragment>
-      <IconButton variant="gradient" onClick={openDrawer}><PlusCircleIcon className="h-6 w-8" /></IconButton>
-      <Drawer open={open} onClose={closeDrawer} className="p-4">
-        <div className="mb-6 flex items-center justify-between">
-          <Typography variant="h5" color="blue-gray">
-            Search
-          </Typography>
-          <IconButton variant="text" color="blue-gray" onClick={closeDrawer}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="h-5 w-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </IconButton>
+      <IconButton onClick={openDrawer} className="">
+        <PlusCircleIcon className="h-6 w-6 text-accent" />
+      </IconButton>
+      <Drawer anchor="left" open={open} onClose={closeDrawer} className="w-80 max-w-full">
+        <div className="p-4">
+          <div className="mb-6 flex items-center justify-between">
+            <Typography variant="h6" className="text-primary">
+              Search Users
+            </Typography>
+            <IconButton onClick={closeDrawer} className="text-accent">
+              <XMarkIcon className="h-5 w-5" />
+            </IconButton>
+          </div>
+          <div className="relative mb-4">
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Search"
+              value={search}
+              onChange={onChange}
+              InputProps={{
+                startAdornment: <MagnifyingGlassIcon className="h-5 w-5 text-gray-400 mr-2" />,
+              }}
+            />
+          </div>
+          {loading ? (
+            <div className="flex justify-center">
+              <CircularProgress />
+            </div>
+          ) : (
+            <List>
+              {searchResult.map((user) => (
+                <UserListItem key={user._id} user={user} handleFunction={() => accessChat(user._id)} />
+              ))}
+            </List>
+          )}
         </div>
-        <div className="relative flex w-full max-w-[24rem]">
-          <Input
-            type="text"
-            label="Search"
-            value={search}
-            onChange={onChange}
-            className="pr-20"
-            containerProps={{
-              className: "min-w-0",
-            }}
-          />
-          <Button
-            size="sm"
-            color={search ? "gray" : "blue-gray"}
-            disabled={!search}
-            className="!absolute right-1 top-1 rounded"
-            onClick={handleSearch}
-          >
-            Invite
-          </Button>
-        </div>
-        {loading ? (
-          <></>
-        ) : (
-          searchResult.length > 0 &&
-          searchResult.map((user) => {
-            return (
-              <UserListItem
-                key={user._id}
-                user={user}
-                handleFunction={() => accessChat(user._id)}
-              />
-            );
-          })
-        )}
       </Drawer>
     </React.Fragment>
-  );
-};
+  )
+}
 
-export default SideDrawer;
+export default SideDrawer
+
